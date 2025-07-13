@@ -19,10 +19,13 @@
       function onSuccess(token) {
         console.log("Captcha Solved:", token);
         const redirect = getQueryParam("redirect");
+        const rqtoken = getQueryParam("rqtoken");
         if (redirect) {
           const url = new URL(redirect);
           url.searchParams.set("token", token);
-          window.location.href = url.toString();
+if (rqtoken) {
+  url.searchParams.set("rqtoken", rqtoken);
+}          window.location.href = url.toString();
         } else {
           alert("Captcha Token:\n" + token);
         }
