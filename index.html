@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamic hCaptcha Solver</title>
+    <script src="https://hcaptcha.com/1/api.js" async defer></script>
+  </head>
+  <body>
+    <form id="captcha-form">
+      <div id="captcha-box" class="h-captcha" data-callback="onSuccess"></div>
+      <input type="hidden" id="captcha-response" name="h-captcha-response" />
+    </form>
+
+    <script>
+      function getQueryParam(key) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(key);
+      }
+
+      function onSuccess(token) {
+        console.log("Captcha Solved:", token);
+        const redirect = getQueryParam("redirect");
+        if (redirect) {
+          const url = new URL(redirect);
+          url.searchParams.set("token", token);
+          window.location.href = url.toString();
+        } else {
+          alert("Captcha Token:\n" + token);
+        }
+      }
+
+      window.onload = function () {
+        const sitekey = getQueryParam("sitekey");
+        const rqdata = getQueryParam("rqdata");
+
+        if (!sitekey) {
+          alert("Missing sitekey in query");
+          return;
+        }
+
+        const captchaBox = document.getElementById("captcha-box");
+        captchaBox.setAttribute("data-sitekey", sitekey);
+        if (rqdata) {
+          captchaBox.setAttribute(
+            "data-extra-data",
+            JSON.stringify({ rqdata })
+          );
+        }
+
+        // Manually render hCaptcha if needed
+        if (window.hcaptcha) {
+          window.hcaptcha.render("captcha-box");
+        }
+      };
+    </script>
+  </body>
+</html>
