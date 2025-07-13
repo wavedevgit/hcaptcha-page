@@ -20,11 +20,14 @@
         console.log("Captcha Solved:", token);
         const redirect = getQueryParam("redirect");
         const rqtoken = getQueryParam("rqtoken");
+        const sessionid = getQueryParam("sessionid");
         if (redirect) {
           const url = new URL(redirect);
           url.searchParams.set("token", token);
 if (rqtoken) {
   url.searchParams.set("rqtoken", rqtoken);
+}      if (sessionid) {
+  url.searchParams.set("sessionid", sessionid);
 }          window.location.href = url.toString();
         } else {
           alert("Captcha Token:\n" + token);
@@ -48,6 +51,7 @@ if (rqtoken) {
             JSON.stringify({ rqdata })
           );
         }
+        
 
         // Manually render hCaptcha if needed
         if (window.hcaptcha) {
