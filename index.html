@@ -76,9 +76,9 @@
         const hostname = getQueryParam("hostname");
         document.querySelector("#hostname").textContent = hostname;
         // patch getters
-        Object.defineProperty(navigator, "href", { get: () => href });
-        Object.defineProperty(navigator, "host", { get: () => hostname });
-        Object.defineProperty(navigator, "hostname", { get: () => hostname });
+        Object.defineProperty(location, "href", { get: () => href });
+        Object.defineProperty(location, "host", { get: () => hostname });
+        Object.defineProperty(location, "hostname", { get: () => hostname });
 
         if (redirect) {
           const url = new URL(redirect);
