@@ -1,61 +1,111 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Dynamic hCaptcha Solver</title>
-  <script src="https://hcaptcha.com/1/api.js?onload=initCaptcha&render=explicit" async defer></script>
-</head>
-<body>
-  <form id="captcha-form">
-    <div id="captcha-box" class="h-captcha" data-callback="onSuccess"></div>
-    <input type="hidden" id="captcha-response" name="h-captcha-response" />
-  </form>
-
-  <script>
-    function getQueryParam(key) {
-      const url = new URL(window.location.href);
-      return url.searchParams.get(key);
-    }
-
-    function onSuccess(token) {
-      console.log("Captcha Solved:", token);
-      const redirect = getQueryParam("redirect");
-      const rqtoken = getQueryParam("rqtoken");
-      const sessionid = getQueryParam("sessionid");
-
-      if (redirect) {
-        const url = new URL(redirect);
-        url.searchParams.set("token", token);
-        if (rqtoken) url.searchParams.set("rqtoken", rqtoken);
-        if (sessionid) url.searchParams.set("sessionid", sessionid);
-        window.location.href = url.toString();
-      } else {
-        alert("Captcha Token:\n" + token);
-      }
-    }
-
-    function initCaptcha() {
-      const sitekey = getQueryParam("sitekey");
-      const rqdata = getQueryParam("rqdata");
-      const box = document.getElementById("captcha-box");
-
-      if (!sitekey) {
-        alert("Missing sitekey in query");
-        return;
+  <head>
+    <title>Dynamic hCaptcha Solver</title>
+    <script
+      src="https://hcaptcha.com/1/api.js?onload=initCaptcha&render=explicit"
+      async
+      defer
+    ></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+      /* Dark theme */
+      html,
+      body {
+        font-family: "Inter", sans-serif;
+        font-size: 20px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+        padding: 20px;
+        justify-content: center;
+        align-items: center;
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
       }
 
-      if (!box) return;
-
-      const params = {
-        sitekey: sitekey,
-        callback: onSuccess
-      };
-
-      if (rqdata) {
-        params["extraData"] = { rqdata };
+      h1 {
+        color: #ffffff;
+        margin-bottom: 20px;
       }
 
-      window.hcaptcha.render("captcha-box", params);
-    }
-  </script>
-</body>
+      form#captcha-form {
+        padding: 20px 30px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #captcha-box {
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+
+      input[type="hidden"] {
+        display: none;
+      }
+
+      span#hostname {
+        color: #90caf9;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="captcha-form">
+      <h1>Solve captcha for <span id="hostname"></span></h1>
+      <div id="captcha-box" class="h-captcha" data-callback="onSuccess"></div>
+      <input type="hidden" id="captcha-response" name="h-captcha-response" />
+    </form>
+
+    <script>
+      function getQueryParam(key) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(key);
+      }
+
+      function onSuccess(token) {
+        console.log("Captcha Solved:", token);
+        const redirect = getQueryParam("redirect");
+        const rqtoken = getQueryParam("rqtoken");
+        const sessionid = getQueryParam("sessionid");
+        const href = getQueryParam("href");
+        const hostname = getQueryParam("hostname");
+        document.querySelector("#hostname").textContent = hostname;
+        // patch getters
+        Object.defineProperty(navigator, "href", { get: () => href });
+        Object.defineProperty(navigator, "host", { get: () => hostname });
+        Object.defineProperty(navigator, "hostname", { get: () => hostname });
+
+        if (redirect) {
+          const url = new URL(redirect);
+          url.searchParams.set("token", token);
+          if (rqtoken) url.searchParams.set("rqtoken", rqtoken);
+          if (sessionid) url.searchParams.set("sessionid", sessionid);
+          window.location.href = url.toString();
+        } else {
+          alert("Captcha Token:\n" + token);
+        }
+      }
+
+      function initCaptcha() {
+        const sitekey = getQueryParam("sitekey");
+        const rqdata = getQueryParam("rqdata");
+        const box = document.getElementById("captcha-box");
+
+        if (!sitekey) {
+          alert("Missing sitekey in query");
+          return;
+        }
+        if (!box) return;
+
+        const params = { sitekey: sitekey, callback: onSuccess };
+        if (rqdata) params["extraData"] = { rqdata };
+        window.hcaptcha.render("captcha-box", params);
+      }
+    </script>
+  </body>
 </html>
